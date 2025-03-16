@@ -1,103 +1,215 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import { useState, useEffect, useCallback, useMemo } from "react";
+import AlertDialog from "@/components/AlertDialog";
+import SuccessDialog from "@/components/SuccessDialog";
+import ConfirmDialog from "@/components/ConfirmDialog";
+
+export default function Example() {
+  // State variables
+  const [price, setPrice] = useState("");
+  const [selected, setSelected] = useState("");
+  const [isChecked, setIsChecked] = useState(false);
+  const [value, setValue] = useState(0.5);
+  const [activity, setActivity] = useState("");
+  const [todoList, setTodoList] = useState<
+    { activity: string; price: string; selected: string; isChecked: boolean; value: number }[]>([]);
+  const [openAlert, setOpenAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [openSuccess, setOpenSuccess] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleteIndex, setDeleteIndex] = useState<number | null>(null);
+
+  // Memoized dropdown options (prevents unnecessary recalculations)
+  const options = useMemo(() => [
+    "Education", "Recreational", "Social", "DIY", "Charity", "Cooking", "Relaxation", "Music", "Busywork"
+  ], []);
+
+  // Load tasks from localStorage on component mount
+  useEffect(() => {
+    const savedList = localStorage.getItem("todoList");
+    if (savedList) setTodoList(JSON.parse(savedList));
+  }, []);
+
+  // Save tasks to localStorage whenever the todoList changes
+  useEffect(() => {
+    localStorage.setItem("todoList", JSON.stringify(todoList));
+  }, [todoList]);
+
+  // Handle price input with validation (allows only numbers with up to 2 decimal places)
+  const handlePriceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    if (/^\d*\.?\d{0,2}$/.test(value)) setPrice(value);
+  }, []);
+
+  // Handle form submission
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!activity || !price || !selected) {
+      setAlertMessage("Please fill in all required fields.");
+      setOpenAlert(true);
+      return;
+    }
+
+    const newItem = { activity, price, selected, isChecked, value };
+    setTodoList(prev => [...prev, newItem]);
+
+    // Reset form fields
+    setActivity("");
+    setPrice("");
+    setSelected("");
+    setIsChecked(false);
+    setValue(0.5);
+
+    // Show success dialog
+    setOpenSuccess(true);
+  };
+
+  // Delete task (optimized using `useCallback`)
+  const handleDelete = () => {
+    if (deleteIndex !== null) {
+      const updatedList = todoList.filter((_, i) => i !== deleteIndex);
+      setTodoList(updatedList);
+      setConfirmOpen(false);
+      setDeleteIndex(null);
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="isolate bg-white px-6 py-24 sm:py-10 lg:px-8">
+      <form onSubmit={handleSubmit}>
+        <div className="space-y-12">
+          {/* Header Section */}
+          <div className="border-b border-gray-900/10 pb-12">
+            <h2 className="font-semibold text-gray-900">To Do List Form</h2>
+            <h5 className="text-gray-600">Total Tasks: {todoList.length}</h5>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {/* Form Fields */}
+            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              {/* Activity Field */}
+              <div className="sm:col-span-4">
+                <label className="block text-sm font-medium text-gray-900">*Activity:</label>
+                <input
+                  type="text"
+                  value={activity}
+                  onChange={(e) => setActivity(e.target.value)}
+                  placeholder="Create a static page"
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
+
+              {/* Price Field */}
+              <div className="col-span-full w-50">
+                <label className="block text-sm font-medium text-gray-900">*Price (RM):</label>
+                <input
+                  type="text"
+                  value={price}
+                  onChange={handlePriceChange}
+                  placeholder="Enter price"
+                  className="w-full p-2 border rounded-md"
+                />
+              </div>
+
+              {/* Type Selection */}
+              <div className="col-span-full">
+                <label className="block text-sm font-medium text-gray-900">*Type:</label>
+                <select
+                  value={selected}
+                  onChange={(e) => setSelected(e.target.value)}
+                  className="w-50 mt-1 p-2 border rounded-md"
+                >
+                  <option value="" disabled>Select an option</option>
+                  {options.map(option => (
+                    <option key={option} value={option}>{option}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Booking Required Checkbox */}
+              <div className="flex gap-3 col-span-full">
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => setIsChecked(prev => !prev)}
+                  className="h-5 w-5 border-gray-300 rounded"
+                />
+                <span className="text-sm font-medium text-gray-900">Booking Required</span>
+              </div>
+
+              {/* Accessibility Slider */}
+              <div className="w-64">
+                <label className="block text-sm font-medium text-gray-700">Accessibility</label>
+                <input
+                  type="range"
+                  min="0.0"
+                  max="1.0"
+                  step="0.1"
+                  value={value}
+                  onChange={(e) => setValue(parseFloat(e.target.value))}
+                  className="w-full mt-2 h-2 bg-gray-300 rounded-lg cursor-pointer"
+                />
+                <div className="mt-1 text-sm text-gray-600">Value: {value.toFixed(1)}</div>
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Submit Button */}
+        <div className="mt-6 flex items-center justify-end gap-x-6">
+          <button
+            type="submit"
+            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 cursor-pointer"
+          >
+            Add
+          </button>
+
+        </div>
+      </form>
+
+      {/* Alert Dialog for Validation */}
+      <AlertDialog open={openAlert} onClose={() => setOpenAlert(false)} title="Validation Error" message={alertMessage} />
+
+      {/* Success Dialog */}
+      <SuccessDialog open={openSuccess} onClose={() => setOpenSuccess(false)} title="Success!" message="Task has been added successfully." />
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleDelete}
+        title="Confirm Delete"
+        message="Are you sure you want to delete this item? This action cannot be undone."
+      />
+
+      {/* Task List Display */}
+      {todoList.length > 0 && (
+        <div className="mt-10">
+          <h3 className="text-lg font-semibold text-gray-900">Task List</h3>
+          <ul className="mt-4 space-y-2">
+            {todoList.map((item, index) => (
+              <li key={index} className="p-3 border rounded-md bg-gray-100 flex justify-between items-center">
+                <div>
+                  <strong>{item.activity}</strong> - RM {item.price || "0.00"} - {item.selected || "No Type"}
+                  <br />
+                  📅 Booking Required: {item.isChecked ? "✅ Yes" : "❌ No"}
+                  <br />
+                  🔧 Accessibility: {item.value.toFixed(1)}
+                </div>
+                <button
+                  onClick={() => {
+                    setDeleteIndex(index);
+                    setConfirmOpen(true);
+                  }}
+                  className="ml-4 bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 cursor-pointer"
+                >
+                  Delete
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
