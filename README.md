@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Todo List App
 
-## Getting Started
+This is a simple Todo List application built with **React (Next.js)** and **TypeScript**, utilizing **localStorage** for persistence. The app allows users to:
+- Add new tasks with details like activity name, price, type, and accessibility.
+- View a list of tasks.
+- Delete tasks with a confirmation dialog.
+- Get success and alert notifications.
 
-First, run the development server:
+## Features
+✅ **Add Tasks** - Users can input an activity, select a type, set a price, and adjust accessibility.
+✅ **Store Tasks in LocalStorage** - The list persists even after refreshing the page.
+✅ **Success & Alert Popups** - Provides validation error messages and success notifications.
+✅ **Delete Confirmation** - Prevents accidental deletions by asking for confirmation before removing a task.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Project Structure
+```
+/components
+  ├── AlertDialog.tsx    # Displays validation error messages
+  ├── SuccessDialog.tsx  # Shows success popups
+  ├── ConfirmDialog.tsx  # Confirmation dialog for delete actions
+/pages
+  ├── index.tsx          # Main page with form and task list
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Installation & Setup
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-repo/todo-list.git
+   cd todo-list
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Usage
+- Fill in the required fields and click the **Add** button to create a task.
+- View the list of added tasks.
+- Click **Delete** to remove a task (requires confirmation).
+- Get error alerts for missing fields and success messages when adding tasks.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Technologies Used
+- **Next.js** (React Framework)
+- **TypeScript** (For type safety)
+- **Tailwind CSS** (For styling)
+- **Headless UI** (For dialog components)
 
-## Learn More
+## Contributing
+Feel free to fork the repo and submit pull requests with improvements or new features!
 
-To learn more about Next.js, take a look at the following resources:
+## License
+This project is licensed under the MIT License.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
