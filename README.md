@@ -25,7 +25,7 @@ This is a simple Todo List application built with **React (Next.js)** and **Type
 ## Installation & Setup
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-repo/todo-list.git
+   git clone https://github.com/iffat1996/to-do-list-nextjs.git
    cd todo-list
    ```
 2. Install dependencies:
